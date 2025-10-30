@@ -207,7 +207,7 @@ API → Return full result
 
 > 💡 **For detailed architecture information**, see [architecture.md](./architecture.md) for complete diagrams and technical details.
 
-**Async Request-Reply Pattern with Agent Framework:**
+**Async Request-Reply Pattern with Multi-Agent Framework:**
 
 ```mermaid
 flowchart TB
@@ -217,7 +217,20 @@ flowchart TB
     WebJob[Continuous WebJob - Background Worker]
     ServiceBus[Service Bus - Async Queue]
     Cosmos[Cosmos DB - Task Status & Results]
-    AI[Azure AI Foundry - GPT-4o + Agent Framework]
+    
+    subgraph Workflow["Multi-Agent Workflow (4 Phases)"]
+        direction TB
+        Phase1["Phase 1: Parallel Gathering<br/>Currency + Weather + Local Knowledge"]
+        Phase2["Phase 2: Itinerary Planning<br/>Itinerary Planner Agent"]
+        Phase3["Phase 3: Budget Optimization<br/>Budget Optimizer Agent"]
+        Phase4["Phase 4: Final Assembly<br/>Coordinator Agent"]
+        
+        Phase1 --> Phase2
+        Phase2 --> Phase3
+        Phase3 --> Phase4
+    end
+    
+    AI[Azure AI Foundry - GPT-4o<br/>Agent Framework Runtime]
 
     User -->|1. Submit Request| UI
     UI -->|2. POST /api/travel-plans| API
@@ -226,8 +239,8 @@ flowchart TB
     API -->|5. Return TaskId| UI
     UI -->|6. Poll Status| API
     ServiceBus -->|7. Process Message| WebJob
-    WebJob -->|8. Generate Plan| AI
-    AI -->|9. Return Itinerary| WebJob
+    WebJob -->|8. Execute Workflow| Workflow
+    Workflow <-->|9. Create & Run Agents| AI
     WebJob -->|10. Save Result| Cosmos
     Cosmos -->|11. Return Complete| UI
     UI -->|12. Display| User
@@ -239,34 +252,41 @@ flowchart TB
     style ServiceBus fill:#ffe1f5
     style Cosmos fill:#e1ffe1
     style AI fill:#f5e1ff
+    style Workflow fill:#fff9e6
+    style Phase1 fill:#d4edda
+    style Phase2 fill:#d1ecf1
+    style Phase3 fill:#f8d7da
+    style Phase4 fill:#d6d8db
 ```
 
 **Text Diagram:**
 
 ```
-┌──────────┐      POST          ┌────────────────────────────────┐
-│  Client  │ ─────────────────> │  Azure App Service (P0v4)      │
-│  (Web UI)│                    │  ┌──────────────────────────┐  │
-└──────────┘                    │  │   Web API                │  │
-     │                          │  │  (REST Endpoints)        │  │
-     │    202 Accepted          │  └──────────┬───────────────┘  │
-     │    { taskId }            │             │                  │
-     │ <───────────────────     │             │ Queue Message    │
-     │                          │             ▼                  │
-     │   Poll GET /status       │  ┌──────────────────────────┐  │
-     │ ──────────────────>      │  │ Continuous WebJob        │  │
-     │   { progress: 45% }      │  │ (TravelPlanWorker)       │  │
-     │ <──────────────────      │  │ - Agent Framework        │  │
-     │                          │  │ - GPT-4o Integration     │  │
-     │   GET /result            │  │ - Service Bus Processor  │  │
-     │ ──────────────────>      │  └──────────────────────────┘  │
-     │   { itinerary }          └────────────────────────────────┘
-     │ <──────────────────            │       │           │
+┌──────────┐      POST          ┌────────────────────────────────────────┐
+│  Client  │ ─────────────────> │  Azure App Service (P0v4)              │
+│  (Web UI)│                    │  ┌──────────────────────────────────┐  │
+└──────────┘                    │  │   Web API                        │  │
+     │                          │  │  (REST Endpoints)                │  │
+     │    202 Accepted          │  └──────────┬───────────────────────┘  │
+     │    { taskId }            │             │                          │
+     │ <───────────────────     │             │ Queue Message            │
+     │                          │             ▼                          │
+     │   Poll GET /status       │  ┌──────────────────────────────────┐  │
+     │ ──────────────────>      │  │ Continuous WebJob                │  │
+     │   { progress: 45% }      │  │ (Multi-Agent Workflow)           │  │
+     │ <──────────────────      │  │ - Phase 1: Parallel Gathering    │  │
+     │                          │  │ - Phase 2: Itinerary Planning    │  │
+     │   GET /result            │  │ - Phase 3: Budget Optimization   │  │
+     │ ──────────────────>      │  │ - Phase 4: Final Assembly        │  │
+     │   { itinerary }          │  │ - Service Bus Processor          │  │
+     │ <──────────────────      │  └──────────────────────────────────┘  │
+                                └────────────────────────────────────────┘
+                                      │       │           │
                                       ▼       ▼           ▼
-                          ┌───────────────────────────────────────┐
-                          │  Service Bus  │ Cosmos DB │ AI Foundry│
-                          │  (Queue)      │ (State)   │ (Agents)  │
-                          └───────────────────────────────────────┘
+                          ┌──────────────────────────────────────────────┐
+                          │  Service Bus  │ Cosmos DB │ Azure AI Foundry │
+                          │  (Queue)      │ (State)   │ (6 Agents)       │
+                          └──────────────────────────────────────────────┘
 ```
 
 ### Components

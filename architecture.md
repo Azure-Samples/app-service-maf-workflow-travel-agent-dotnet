@@ -69,7 +69,20 @@ flowchart TB
     WebJob[Continuous WebJob - Background Worker]
     ServiceBus[Service Bus - Async Queue]
     Cosmos[Cosmos DB - Task Status & Results]
-    AI[Azure AI Foundry - GPT-4o + Agent Framework]
+    
+    subgraph Workflow["Multi-Agent Workflow"]
+        direction TB
+        Phase1["Phase 1: Parallel Gathering"]
+        Phase2["Phase 2: Itinerary Planning"]
+        Phase3["Phase 3: Budget Optimization"]
+        Phase4["Phase 4: Final Assembly"]
+        
+        Phase1 --> Phase2
+        Phase2 --> Phase3
+        Phase3 --> Phase4
+    end
+    
+    AI[Azure AI Foundry<br/>GPT-4o + Agent Framework]
 
     User -->|1. Submit Request| UI
     UI -->|2. POST /api/travel-plans| API
@@ -78,8 +91,8 @@ flowchart TB
     API -->|5. Return TaskId| UI
     UI -->|6. Poll Status| API
     ServiceBus -->|7. Process Message| WebJob
-    WebJob -->|8. Generate Plan| AI
-    AI -->|9. Return Itinerary| WebJob
+    WebJob -->|8. Execute Workflow| Workflow
+    Workflow <-->|9. Create & Run 6 Agents| AI
     WebJob -->|10. Save Result| Cosmos
     Cosmos -->|11. Return Complete| UI
     UI -->|12. Display| User
@@ -91,6 +104,7 @@ flowchart TB
     style ServiceBus fill:#ffe1f5
     style Cosmos fill:#e1ffe1
     style AI fill:#f5e1ff
+    style Workflow fill:#fff9e6
 ```
 
 ## How It Works
