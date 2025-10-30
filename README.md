@@ -25,6 +25,50 @@ This sample demonstrates a **code-generated multi-agent workflow** where special
 
 ### 🔄 Workflow Phases
 
+The workflow orchestrates specialized agents in a structured sequence:
+
+```mermaid
+flowchart LR
+    Start(("Start"))
+    Input["Travel Request<br/>Destination, Dates,<br/>Budget, Interests"]
+    
+    subgraph Phase1["Phase 1: Parallel Gathering"]
+        direction TB
+        Currency["Currency Converter<br/>Agent"]
+        Weather["Weather Advisor<br/>Agent"]
+        LocalKnow["Local Knowledge<br/>Agent"]
+    end
+    
+    Itinerary["Itinerary Planner<br/>Agent"]
+    Budget["Budget Optimizer<br/>Agent"]
+    Coordinator["Coordinator<br/>Agent"]
+    
+    Result["Travel Plan<br/>Complete Itinerary"]
+    End(("End"))
+    
+    Start --> Input
+    Input --> Phase1
+    Currency --> Itinerary
+    Weather --> Itinerary
+    LocalKnow --> Itinerary
+    Itinerary --> Budget
+    Budget --> Coordinator
+    Coordinator --> Result
+    Result --> End
+    
+    style Start fill:#e1f5ff,stroke:#333,stroke-width:2px
+    style End fill:#e1f5ff,stroke:#333,stroke-width:2px
+    style Input fill:#fff4e1,stroke:#333,stroke-width:2px
+    style Currency fill:#d4edda,stroke:#333,stroke-width:2px
+    style Weather fill:#d4edda,stroke:#333,stroke-width:2px
+    style LocalKnow fill:#d4edda,stroke:#333,stroke-width:2px
+    style Itinerary fill:#d1ecf1,stroke:#333,stroke-width:2px
+    style Budget fill:#f8d7da,stroke:#333,stroke-width:2px
+    style Coordinator fill:#d6d8db,stroke:#333,stroke-width:2px
+    style Result fill:#fff9e6,stroke:#333,stroke-width:2px
+    style Phase1 fill:#f5f5f5,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5
+```
+
 **Phase 1: Parallel Information Gathering (10-40%)**
 - Currency, Weather, and Local Knowledge agents work simultaneously
 - No-auth external APIs provide real-time data (NWS Weather, Frankfurter Currency)
