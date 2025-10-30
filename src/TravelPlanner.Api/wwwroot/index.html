@@ -170,6 +170,25 @@
             border-left: 4px solid #c62828;
         }
 
+        .agent-status {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .agent-status.show {
+            display: block;
+        }
+
+        .agent-name {
+            color: #667eea;
+            font-weight: 700;
+        }
+
         .progress-bar {
             width: 100%;
             height: 8px;
@@ -418,6 +437,7 @@
                     <button type="submit" id="submitBtn">Generate Travel Plan</button>
 
                     <div class="status" id="status"></div>
+                    <div class="agent-status" id="agentStatus"></div>
                     <div class="progress-bar" id="progressBar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
@@ -526,6 +546,7 @@
         async function pollTaskStatus(taskId) {
             const submitBtn = document.getElementById('submitBtn');
             const progressFill = document.getElementById('progressFill');
+            const agentStatus = document.getElementById('agentStatus');
             const maxAttempts = 120; // 2 minutes
             let attempts = 0;
 
@@ -546,15 +567,29 @@
                     
                     progressFill.style.width = `${progress}%`;
                     
+                    // Display agent information if available
                     if (currentStep) {
-                        showStatus(`${currentStep} - ${progress}%`, 'loading');
+                        const agentMatch = currentStep.match(/\[(.*?)\]/);
+                        if (agentMatch) {
+                            const agentName = agentMatch[1];
+                            const stepMessage = currentStep.replace(`[${agentName}] `, '');
+                            showStatus(`${stepMessage} - ${progress}%`, 'loading');
+                            agentStatus.innerHTML = `🤖 Active Agent: <span class="agent-name">${agentName}</span>`;
+                            agentStatus.classList.add('show');
+                        } else {
+                            showStatus(`${currentStep} - ${progress}%`, 'loading');
+                            agentStatus.classList.remove('show');
+                        }
                     } else {
                         showStatus(`${status} - ${progress}%`, 'loading');
+                        agentStatus.classList.remove('show');
                     }
 
                     if (status === 'completed') {
                         progressFill.style.width = '100%';
-                        showStatus('Travel plan generated successfully!', 'success');
+                        showStatus('Travel plan generated successfully! 🎉', 'success');
+                        agentStatus.innerHTML = `✅ All agents completed their work`;
+                        agentStatus.classList.add('show');
                         displayResults(task);
                         submitBtn.disabled = false;
                         return;
@@ -575,6 +610,7 @@
                     showStatus(`Error: ${error.message}`, 'error');
                     submitBtn.disabled = false;
                     document.getElementById('progressBar').classList.remove('show');
+                    document.getElementById('agentStatus').classList.remove('show');
                 }
             };
 

@@ -63,7 +63,22 @@ if (!string.IsNullOrEmpty(cosmosEndpoint) && !string.IsNullOrEmpty(databaseName)
 }
 
 // Configure Agent options
-builder.Services.Configure<AgentOptions>(builder.Configuration.GetSection("Agent"));
+builder.Services.Configure<TravelPlanner.Shared.Services.AgentOptions>(builder.Configuration.GetSection("Agent"));
+
+// Register HttpClient for external APIs
+builder.Services.AddHttpClient<TravelPlanner.Shared.ExternalServices.IWeatherService, TravelPlanner.Shared.ExternalServices.NWSWeatherService>();
+builder.Services.AddHttpClient<TravelPlanner.Shared.ExternalServices.ICurrencyService, TravelPlanner.Shared.ExternalServices.FrankfurterCurrencyService>();
+
+// Register all specialized agents
+builder.Services.AddScoped<TravelPlanner.Shared.Agents.CoordinatorAgent>();
+builder.Services.AddScoped<TravelPlanner.Shared.Agents.CurrencyConverterAgent>();
+builder.Services.AddScoped<TravelPlanner.Shared.Agents.WeatherAdvisorAgent>();
+builder.Services.AddScoped<TravelPlanner.Shared.Agents.LocalKnowledgeAgent>();
+builder.Services.AddScoped<TravelPlanner.Shared.Agents.ItineraryPlannerAgent>();
+builder.Services.AddScoped<TravelPlanner.Shared.Agents.BudgetOptimizerAgent>();
+
+// Register the multi-agent workflow orchestrator
+builder.Services.AddScoped<TravelPlanner.Shared.Workflows.TravelPlanningWorkflow>();
 
 // Register application services
 builder.Services.AddScoped<ITravelPlanService, TravelPlanService>();

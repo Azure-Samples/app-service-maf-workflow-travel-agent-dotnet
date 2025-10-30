@@ -1,11 +1,75 @@
 # App Service Agent Framework Travel Planner With WebJob
 
-A demonstration of building asynchronous, long-running AI applications using the [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) on Azure App Service. This sample showcases server-side persistent agents with conversation threads, background processing with Service Bus, and state management with Cosmos DB.
+A demonstration of building asynchronous, long-running AI applications using the [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) on Azure App Service. This sample showcases **multi-agent workflows** with specialized AI agents, server-side persistent agents with conversation threads, background processing with Service Bus, and state management with Cosmos DB.
 
 See the blog post for more details: [Build Long-Running AI Agents on Azure App Service with Microsoft Agent Framework](https://techcommunity.microsoft.com/blog/appsonazureblog/build-long-running-ai-agents-on-azure-app-service-with-microsoft-agent-framework/4463159)
 
 > **NOTE!**  
 > This demo is an alternative that uses WebJobs to the in-process background service approach demonstrated in [this similar repository](https://github.com/Azure-Samples/app-service-agent-framework-travel-agent-dotnet). WebJobs are a great alternative for background processing in App Service, providing better separation of concerns, independent restarts, and dedicated logging. To learn more about WebJobs on App Service, see the [Azure App Service WebJobs documentation](https://learn.microsoft.com/azure/app-service/overview-webjobs).
+
+## Multi-Agent Architecture
+
+This sample demonstrates a **code-generated multi-agent workflow** where specialized AI agents collaborate to create comprehensive travel plans:
+
+### 🤖 Specialized Agents
+
+1. **Currency Converter Agent** - Provides real-time exchange rates and budget conversion using the Frankfurter API (European Central Bank rates)
+2. **Weather Advisor Agent** - Fetches weather forecasts and packing recommendations using the National Weather Service API (US destinations)
+3. **Local Knowledge Agent** - Offers destination-specific cultural tips, customs, and local insights
+4. **Itinerary Planner Agent** - Creates detailed day-by-day schedules with activities, meals, and attractions
+5. **Budget Optimizer Agent** - Allocates budget across categories and provides cost-saving recommendations
+6. **Coordinator Agent** - Orchestrates the workflow and assembles the final travel plan
+
+### 🔄 Workflow Phases
+
+**Phase 1: Parallel Information Gathering (10-40%)**
+- Currency, Weather, and Local Knowledge agents work simultaneously
+- No-auth external APIs provide real-time data (NWS Weather, Frankfurter Currency)
+- Results stored in workflow state for downstream agents
+
+**Phase 2: Itinerary Planning (40-70%)**
+- Itinerary Planner agent creates detailed daily schedule
+- Uses context from Phase 1 (weather, local knowledge)
+- Generates activities, dining recommendations, and attractions
+
+**Phase 3: Budget Optimization (70-90%)**
+- Budget Optimizer analyzes itinerary and allocates funds
+- Provides category-wise breakdown and cost-saving tips
+- Ensures plan fits within specified budget
+
+**Phase 4: Final Assembly (90-100%)**
+- Coordinator agent compiles all agent outputs
+- Formats comprehensive travel plan with tips and recommendations
+- Returns structured itinerary to user
+
+### 🎯 Why Multi-Agent?
+
+**✅ Separation of Concerns**: Each agent has a single, focused responsibility  
+**✅ Parallel Execution**: Independent agents run simultaneously for faster results  
+**✅ Specialized Expertise**: Agents have domain-specific instructions and tools  
+**✅ Reusability**: Agents can be used in other workflows or applications  
+**✅ Maintainability**: Easy to update, test, or replace individual agents  
+**✅ Scalability**: Workflow can scale horizontally across Service Bus consumers
+
+### 🌐 External API Integration (No Authentication Required)
+
+This sample integrates with free, public APIs to enhance travel planning with real-world data:
+
+**National Weather Service (NWS) API**
+- **Endpoint**: `https://api.weather.gov`
+- **Purpose**: 7-day weather forecasts for US destinations
+- **Authentication**: None required (US government public API)
+- **Data**: Temperature, conditions, precipitation probability
+- **Usage**: Weather Advisor Agent provides packing recommendations and activity suggestions
+
+**Frankfurter Currency API**
+- **Endpoint**: `https://api.frankfurter.app`
+- **Purpose**: Real-time currency exchange rates
+- **Authentication**: None required (European Central Bank data)
+- **Data**: Exchange rates for 30+ currencies
+- **Usage**: Currency Converter Agent shows budget in local currency with conversion rates
+
+Both APIs are production-ready, free to use, and require no sign-up or API keys. For destinations outside the US, weather forecasts gracefully degrade with helpful messages.
 
 ## What is Agent Framework?
 
@@ -608,8 +672,10 @@ This will delete the resource group and all contained resources (App Service, Se
 - **Reliability**: Service Bus guarantees message delivery with automatic retries
 
 ### Agent Framework on App Service
+- **Multi-Agent Workflows**: Specialized agents collaborate through code-defined orchestration
 - **Persistent Agents**: Server-side agents maintain conversation context across runs
 - **Managed Lifecycle**: Agents created per request, cleaned up after completion
+- **Parallel Execution**: Independent agents run simultaneously for faster processing
 - **Thread-Based**: Conversation threads organize multi-turn interactions
 - **Progress Tracking**: Real-time status updates from agent execution
 - **No Infrastructure**: Fully managed on App Service, no containers or orchestrators needed
@@ -678,17 +744,20 @@ This demo includes simplifications for clarity:
 
 ## Beyond the Basics: Expand Your Agent Capabilities
 
-This sample is just the beginning! Agent Framework provides powerful capabilities that you can easily add to this foundation:
+This sample already demonstrates advanced Agent Framework patterns with a **production-ready multi-agent workflow**! You can expand further with:
 
 **🛠️ Tool Calling & Function Integration**
-- Connect your agent to real-time APIs (weather, flight prices, hotel availability)
+- ✅ **Already Implemented**: Weather API and Currency API integration
+- Add flight price tracking APIs (e.g., Amadeus, Skyscanner)
 - Integrate booking systems for actual reservations
 - Add payment processing for seamless transactions
 
 **🤝 Multi-Agent Collaboration**
-- Create specialized agents (flight expert, hotel expert, activity planner)
-- Orchestrate multiple agents working together on complex itineraries
-- Implement agent-to-agent communication for better results
+- ✅ **Already Implemented**: 6 specialized agents with coordinated workflow
+- ✅ **Already Implemented**: Parallel and sequential agent execution phases
+- Add more domain experts (transportation, accommodations, activities)
+- Implement agent-to-agent negotiation for better results
+- Create hierarchical agent structures with supervisors
 
 **🧠 Enhanced Intelligence**
 - Add retrieval-augmented generation (RAG) for destination-specific knowledge

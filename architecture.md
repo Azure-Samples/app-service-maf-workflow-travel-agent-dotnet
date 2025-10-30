@@ -1,5 +1,64 @@
 # Travel Planner Architecture
 
+## Multi-Agent Workflow Overview
+
+This application demonstrates a **code-generated multi-agent system** where specialized AI agents collaborate to create comprehensive travel plans. The workflow orchestrates 6 specialized agents across 4 phases:
+
+```mermaid
+graph LR
+    subgraph "Phase 1: Parallel Gathering"
+        Currency[Currency Agent]
+        Weather[Weather Agent]
+        Local[Local Knowledge Agent]
+    end
+    
+    subgraph "Phase 2: Itinerary"
+        Itinerary[Itinerary Planner Agent]
+    end
+    
+    subgraph "Phase 3: Budget"
+        Budget[Budget Optimizer Agent]
+    end
+    
+    subgraph "Phase 4: Assembly"
+        Coordinator[Coordinator Agent]
+    end
+    
+    Currency --> Itinerary
+    Weather --> Itinerary
+    Local --> Itinerary
+    Itinerary --> Budget
+    Budget --> Coordinator
+```
+
+### Specialized Agents
+
+1. **Currency Converter Agent** - Real-time exchange rates (Frankfurter API)
+2. **Weather Advisor Agent** - Weather forecasts and packing tips (NWS API)
+3. **Local Knowledge Agent** - Cultural insights and local customs
+4. **Itinerary Planner Agent** - Day-by-day activity scheduling
+5. **Budget Optimizer Agent** - Cost allocation and optimization
+6. **Coordinator Agent** - Final assembly and formatting
+
+### Workflow Execution
+
+**Phase 1 (10-40%)**: Parallel information gathering
+- Currency, Weather, and Local agents run simultaneously
+- External API calls for real-time data
+- Results stored in workflow state
+
+**Phase 2 (40-70%)**: Itinerary creation
+- Uses context from Phase 1 (weather, local knowledge)
+- Creates detailed daily activities and dining
+
+**Phase 3 (70-90%)**: Budget optimization
+- Analyzes itinerary costs
+- Allocates budget across categories
+
+**Phase 4 (90-100%)**: Final assembly
+- Coordinator compiles all agent outputs
+- Formats comprehensive travel plan
+
 ## High-Level System Overview
 
 ```mermaid
@@ -49,10 +108,16 @@ User fills out form with destination, dates, budget, interests, and preferences.
 - Updates task status to "processing"
 - Calls Azure AI Foundry to generate itinerary
 
-### 4. **AI Agent Generation**
-- WebJob creates persistent AI agent with GPT-4o
-- Runs agent with travel instructions and user preferences
-- Agent generates detailed itinerary with activities, costs, tips
+### 4. **AI Multi-Agent Generation**
+- WebJob executes TravelPlanningWorkflow orchestrator
+- Workflow creates and manages 6 specialized agents
+- **Phase 1**: Currency, Weather, Local Knowledge agents run in parallel
+- **Phase 2**: Itinerary Planner agent creates daily schedule
+- **Phase 3**: Budget Optimizer agent allocates funds
+- **Phase 4**: Coordinator agent assembles final plan
+- Each agent is a persistent AI agent created on Azure AI Foundry
+- Agents use GPT-4o with specialized instructions
+- External APIs provide real-time data (weather, currency)
 
 ### 5. **Store and Return Results**
 - Parses AI response and extracts travel tips
@@ -78,9 +143,12 @@ User fills out form with destination, dates, budget, interests, and preferences.
 - Retry logic for reliability
 
 ### ✅ Azure AI Agent Framework
-- Server-side persistent agents with threads
-- Managed lifecycle (create → run → delete)
-- Conversation context via threads
+- **Multi-Agent Workflows**: Code-defined orchestration of specialized agents
+- **Parallel Execution**: Independent agents run simultaneously
+- **Server-side persistent agents**: Agents created on Azure AI Foundry infrastructure
+- **Managed lifecycle**: Agents created per workflow phase, cleaned up after use
+- **External API Integration**: Weather and currency APIs enhance agent capabilities
+- **Conversation context**: Each agent maintains thread-based conversation history
 
 ### ✅ Managed Identity
 - No credentials in code
