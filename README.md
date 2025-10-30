@@ -1,11 +1,14 @@
-# App Service Agent Framework Travel Planner With WebJob
+# App Service Microsoft Agent Framework Multi-Agent Workflow Travel Planner With WebJob
 
-A demonstration of building asynchronous, long-running AI applications using the [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) on Azure App Service. This sample showcases **multi-agent workflows** with specialized AI agents, server-side persistent agents with conversation threads, background processing with Service Bus, and state management with Cosmos DB.
+A demonstration of building asynchronous, long-running AI applications using **multi-agent workflows** with the [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) on Azure App Service. This sample showcases **code-generated multi-agent orchestration** with 6 specialized AI agents, external API integrations (weather, currency), and background processing with Service Bus and Cosmos DB.
 
-See the blog post for more details: [Build Long-Running AI Agents on Azure App Service with Microsoft Agent Framework](https://techcommunity.microsoft.com/blog/appsonazureblog/build-long-running-ai-agents-on-azure-app-service-with-microsoft-agent-framework/4463159)
+> **🆕 What's Different?**  
+> This sample demonstrates **advanced multi-agent patterns** with code-generated workflow orchestration, whereas the [original single-agent sample](https://github.com/Azure-Samples/app-service-agent-framework-travel-agent-dotnet-webjob) uses a single Foundry-portal agent. This version creates 6 specialized agents in code (Currency Converter, Weather Advisor, Local Knowledge, Itinerary Planner, Budget Optimizer, Coordinator) that collaborate through a 4-phase workflow with parallel and sequential execution.
 
-> **NOTE!**  
-> This demo is an alternative that uses WebJobs to the in-process background service approach demonstrated in [this similar repository](https://github.com/Azure-Samples/app-service-agent-framework-travel-agent-dotnet). WebJobs are a great alternative for background processing in App Service, providing better separation of concerns, independent restarts, and dedicated logging. To learn more about WebJobs on App Service, see the [Azure App Service WebJobs documentation](https://learn.microsoft.com/azure/app-service/overview-webjobs).
+See the original blog post for context on getting started: [Build Long-Running AI Agents on Azure App Service with Microsoft Agent Framework](https://techcommunity.microsoft.com/blog/appsonazureblog/build-long-running-ai-agents-on-azure-app-service-with-microsoft-agent-framework/4463159)
+
+> **Architecture Note:**  
+> Like the original sample, this uses WebJobs for background processing on App Service, providing better separation of concerns, independent restarts, and dedicated logging. To learn more about WebJobs on App Service, see the [Azure App Service WebJobs documentation](https://learn.microsoft.com/azure/app-service/overview-webjobs).
 
 ## Multi-Agent Architecture
 
@@ -47,6 +50,8 @@ This sample demonstrates a **code-generated multi-agent workflow** where special
 **✅ Separation of Concerns**: Each agent has a single, focused responsibility  
 **✅ Parallel Execution**: Independent agents run simultaneously for faster results  
 **✅ Specialized Expertise**: Agents have domain-specific instructions and tools  
+**✅ Code-First DevOps**: All agents defined in C# - no portal configuration needed  
+**✅ Version Control**: Agent definitions tracked in Git alongside application code  
 **✅ Reusability**: Agents can be used in other workflows or applications  
 **✅ Maintainability**: Easy to update, test, or replace individual agents  
 **✅ Scalability**: Workflow can scale horizontally across Service Bus consumers
@@ -81,7 +86,26 @@ The [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framewor
 - **Multi-Turn Interactions**: Complex workflows with iterative AI processing
 - **Tool Integration**: Extensible function calling and integration capabilities
 
-This demo uses Azure AI Foundry's implementation of Agent Framework with GPT-4o to generate detailed, multi-day travel itineraries.
+### Code-Generated Agents vs. Foundry Portal Agents
+
+This sample demonstrates **programmatic agent creation** - all 6 agents are defined and created entirely in C# code. This differs from the original sample which used agents created through the Azure AI Foundry portal UI:
+
+**✅ Code-Generated Agents (This Sample)**
+- Agents defined in C# with `CreateAIAgentAsync()` calls
+- Instructions, names, and configurations in source code
+- Version-controlled and testable
+- Easy to modify and redeploy
+- Supports CI/CD pipelines
+- No manual portal configuration needed
+
+**Portal-Created Agents (Original Sample)**
+- Agents created manually in Azure AI Foundry portal
+- Configuration stored in Azure
+- Requires portal access to modify
+- Harder to version control
+- Manual setup per environment
+
+Both approaches use the same Agent Framework runtime on Azure AI Foundry, but this sample's code-first approach enables better DevOps practices, automated testing, and easier collaboration across teams.
 
 ## Why Azure App Service?
 
