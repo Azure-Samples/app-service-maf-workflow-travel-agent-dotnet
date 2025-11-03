@@ -122,7 +122,14 @@ Both APIs are production-ready, free to use, and require no sign-up or API keys.
 
 ## What is Agent Framework?
 
-The [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) is a comprehensive platform for building, deploying, and managing AI agents. Unlike simple chat completions, Agent Framework provides:
+The [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) is a comprehensive platform for building, deploying, and managing AI agents. Agent Framework provides a unified abstraction for working with AI agents across multiple backend types ([see documentation](https://learn.microsoft.com/en-us/agent-framework/user-guide/agents/agent-types/?pivots=programming-language-csharp)):
+
+1. **Simple agents based on inference services** - Agents built on any IChatClient implementation (Azure OpenAI ChatCompletion, Azure AI Foundry Models ChatCompletion, etc.)
+2. **Server-side managed agents** - Agents that live as Azure resources (Azure AI Foundry Agent, OpenAI Assistants)
+3. **Custom agents** - Fully custom implementations of the AIAgent base class
+4. **Proxy agents** - Connections to remote agents via protocols like A2A
+
+This sample uses **Azure AI Foundry Agents** (the server-side managed type), which provides:
 
 - **Persistent Agents**: Server-side agents that maintain context across multiple interactions
 - **Conversation Threads**: Organized conversation history and state management
@@ -132,24 +139,27 @@ The [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framewor
 
 ### Code-Generated Agents vs. Foundry Portal Agents
 
-This sample demonstrates **programmatic agent creation** - all 6 agents are defined and created entirely in C# code. This differs from the original sample which used agents created through the Azure AI Foundry portal UI:
+This sample demonstrates **programmatic agent creation** using the Azure AI Foundry Agent type - all 6 agents are defined and created as server-side Foundry agent resources entirely in C# code. This differs from the original sample which used agents created through the Azure AI Foundry portal UI:
 
-**✅ Code-Generated Agents (This Sample)**
-- Agents defined in C# with `CreateAIAgentAsync()` calls
+**✅ Code-Generated Foundry Agents (This Sample)**
+- Azure AI Foundry Agent resources defined in C# with `CreateAIAgentAsync()` calls
 - Instructions, names, and configurations in source code
+- Agents created/deleted per workflow run (ephemeral)
 - Version-controlled and testable
 - Easy to modify and redeploy
 - Supports CI/CD pipelines
 - No manual portal configuration needed
 
-**Portal-Created Agents (Original Sample)**
-- Agents created manually in Azure AI Foundry portal
-- Configuration stored in Azure
+**Portal-Created Foundry Agents (Original Sample)**
+- Azure AI Foundry Agent resources created manually in the portal
+- Configuration stored in Azure (persistent)
 - Requires portal access to modify
 - Harder to version control
 - Manual setup per environment
 
-Both approaches use the same Agent Framework runtime on Azure AI Foundry, but this sample's code-first approach enables better DevOps practices, automated testing, and easier collaboration across teams.
+Both approaches create actual server-side Azure AI Foundry Agent resources that execute on Foundry's infrastructure. The code-first approach enables better DevOps practices, automated testing, and easier collaboration across teams.
+
+*Note: Agent Framework also supports other agent types (like Azure OpenAI ChatCompletion agents) that don't create server-side Foundry resources, giving you full orchestration control. We may demonstrate this in a future sample.*
 
 ## Why Azure App Service?
 
@@ -759,10 +769,10 @@ This will delete the resource group and all contained resources (App Service, Se
 - **Horizontal Scalability**: Workers can scale independently based on queue depth
 - **Reliability**: Service Bus guarantees message delivery with automatic retries
 
-### Agent Framework on App Service
+### Agent Framework on App Service (Using Azure AI Foundry Agents)
 - **Multi-Agent Workflows**: Specialized agents collaborate through code-defined orchestration
-- **Persistent Agents**: Server-side agents maintain conversation context across runs
-- **Managed Lifecycle**: Agents created per request, cleaned up after completion
+- **Server-Side Execution**: Azure AI Foundry Agent resources execute on Foundry's infrastructure
+- **Managed Lifecycle**: Foundry agents created per request, cleaned up after completion
 - **Parallel Execution**: Independent agents run simultaneously for faster processing
 - **Thread-Based**: Conversation threads organize multi-turn interactions
 - **Progress Tracking**: Real-time status updates from agent execution
