@@ -122,7 +122,7 @@ Both APIs are production-ready, free to use, and require no sign-up or API keys.
 
 ## What is Agent Framework?
 
-The [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) is a comprehensive platform for building, deploying, and managing AI agents. Agent Framework provides a unified abstraction for working with AI agents across multiple backend types ([see documentation](https://learn.microsoft.com/en-us/agent-framework/user-guide/agents/agent-types/?pivots=programming-language-csharp)):
+The [Microsoft Agent Framework](https://learn.microsoft.com/agent-framework/overview/agent-framework-overview) is a comprehensive platform for building, deploying, and managing AI agents. Agent Framework provides a unified abstraction for working with AI agents across multiple backend types ([see documentation](https://learn.microsoft.com/agent-framework/user-guide/agents/agent-types/?pivots=programming-language-csharp)):
 
 1. **Simple agents based on inference services** - Agents built on any IChatClient implementation (Azure OpenAI ChatCompletion, Azure AI Foundry Models ChatCompletion, etc.)
 2. **Server-side managed agents** - Agents that live as Azure resources (Azure AI Foundry Agent, OpenAI Assistants)
